@@ -3,26 +3,24 @@ package nl.gb.dto;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
-import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Getter
-@Setter
 public class RequestDTO {
     @NotNull
-    public Long transactionReference;
+    public final Long transactionReference;
     @NotBlank
-    public String accountNumber;
+    public final String accountNumber;
     @NotNull
-    public Long startBalance;
+    public final Long startBalance;
     @NotNull
-    public Long mutation;
+    public final Long mutation;
     @NotBlank
-    public String description;
+    public final String description;
     @NotNull
-    public Long endBalance;
+    public final Long endBalance;
 
     @JsonCreator
     public RequestDTO(final @JsonProperty("transaction reference") Long transactionReference,
@@ -37,5 +35,20 @@ public class RequestDTO {
         this.mutation = mutation;
         this.description = description;
         this.endBalance = endBalance;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof RequestDTO) {
+            RequestDTO otherRequest = (RequestDTO) obj;
+            return this.transactionReference.equals(otherRequest.transactionReference)
+                    && this.accountNumber.equals(otherRequest.accountNumber)
+                    && this.startBalance.equals(otherRequest.startBalance)
+                    && this.mutation.equals(otherRequest.mutation)
+                    && this.description.equals(otherRequest.description)
+                    && this.endBalance.equals(otherRequest.endBalance);
+        } else {
+            return false;
+        }
     }
 }

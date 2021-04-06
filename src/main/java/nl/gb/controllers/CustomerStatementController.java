@@ -15,17 +15,10 @@ public class CustomerStatementController {
     @Autowired
     CustomerStatementService service;
 
-    @RequestMapping(value = "/something", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @RequestMapping(value = "/customer/statement", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public ResponseDTO customerStatementEndpoint(@Valid @RequestBody RequestDTO request) throws Exception {
-        System.out.println(request.transactionReference);
-        System.out.println(request.accountNumber);
-        System.out.println(request.startBalance);
-        System.out.println(request.mutation);
-        System.out.println(request.description);
-        System.out.println(request.endBalance);
-
         return service.handleRequest(request);
     }
 }

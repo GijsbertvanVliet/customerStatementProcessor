@@ -24,7 +24,7 @@ public enum Result {
                 resultString = "INCORRECT_END_BALANCE";
                 break;
             case DuplicateReferenceIncorrectEndBalance:
-                resultString = "DUPLICATE_REFERENCE _INCORRECT_END_BALANCE";
+                resultString = "DUPLICATE_REFERENCE_INCORRECT_END_BALANCE";
                 break;
             case BadRequest:
                 resultString = "BAD_REQUEST";
