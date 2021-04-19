@@ -1,1 +1,0 @@
-INSERT INTO REFERENCE VALUES (1101, 'account number');

@@ -1,57 +1,60 @@
 package nl.gb.service;
 
-import nl.gb.dto.RequestDTO;
-import nl.gb.dto.ResponseDTO;
 import nl.gb.repository.Reference;
 import nl.gb.repository.ReferenceRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import nl.gb.service.data.CustomerStatementRecord;
+import nl.gb.service.data.HandleTransactionResponse;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Optional;
+
+;
 
 @Service
 public class CustomerStatementServiceImpl implements CustomerStatementService {
 
-    @Autowired
-    ReferenceRepository referenceRepository;
+    private final ReferenceRepository referenceRepository;
+
+    public CustomerStatementServiceImpl(ReferenceRepository referenceRepository) {
+        this.referenceRepository = referenceRepository;
+    }
 
     @Override
-    public ResponseDTO handleRequest(RequestDTO request) {
-        String transactionReferenceString = String.valueOf(request.transactionReference);
-        Optional<String> maybeDuplicateReferenceAccountNumber = getAccountNrOfDuplicateRef(transactionReferenceString);
+    public HandleTransactionResponse handleRequest(CustomerStatementRecord request) {
+        Optional<String> maybeDuplicateReferenceAccountNumber = getAccountNrOfDuplicateRef(request.getTransactionReference());
         boolean isDuplicateReference = maybeDuplicateReferenceAccountNumber.isPresent();
         boolean isCorrectBalance = isCorrectBalance(request);
 
+
         if(isCorrectBalance) {
-            uploadReference(transactionReferenceString, request.accountNumber);
+            uploadReference(request.getTransactionReference(), request.getAccountNumber());
             if(!isDuplicateReference) {
-                return ResponseDTO.createSuccessfulResponse();
+                return HandleTransactionResponse.createSuccessfulResponse();
             } else {
-                return ResponseDTO.createDuplicateReferenceResponse(request.transactionReference, request.accountNumber);
+                return HandleTransactionResponse.createDuplicateReferenceResponse(request.getTransactionReference(), request.getAccountNumber());
             }
         } else {
             if(!isDuplicateReference) {
-                return ResponseDTO.createIncorrectEndBalanceResponse(request.transactionReference, request.accountNumber);
+                return HandleTransactionResponse.createIncorrectEndBalanceResponse(request.getTransactionReference(), request.getAccountNumber());
             } else {
-                return ResponseDTO.createDuplicateReferenceAndIncorrectEndBalanceResponse(request.transactionReference,
-                        request.accountNumber,
+                return HandleTransactionResponse.createDuplicateReferenceAndIncorrectEndBalanceResponse(request.getTransactionReference(),
+                        request.getAccountNumber(),
                         maybeDuplicateReferenceAccountNumber.get());
             }
         }
     }
 
-    private void uploadReference(String transactionReference, String accountNumber) {
-        Reference referenceToUpload = new Reference();
-        referenceToUpload.setTrxReference(transactionReference);
-        referenceToUpload.setAccountNumber(accountNumber);
+    private void uploadReference(Long transactionReference, String accountNumber) {
+        Reference referenceToUpload = new Reference(transactionReference,accountNumber);
         referenceRepository.save(referenceToUpload);
     }
 
-    private Optional<String> getAccountNrOfDuplicateRef(String transactionReference) {
+    private Optional<String> getAccountNrOfDuplicateRef(Long transactionReference) {
         return referenceRepository.findById(transactionReference).map(Reference::getAccountNumber);
     }
 
-    private boolean isCorrectBalance(RequestDTO request) {
-        return request.startBalance + request.mutation == request.endBalance;
+    private boolean isCorrectBalance(CustomerStatementRecord request) {
+        return request.getStartBalance().add(request.getMutation()).equals(request.getEndBalance());
     }
 }

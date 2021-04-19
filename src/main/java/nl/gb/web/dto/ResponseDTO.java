@@ -1,17 +1,17 @@
-package nl.gb.dto;
+package nl.gb.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import nl.gb.error.ErrorRecord;
-import nl.gb.error.Result;
 
 import java.util.List;
 
 @Getter
+@EqualsAndHashCode
 public class ResponseDTO {
-    final Result result;
-    final List<ErrorRecord> errorRecords;
+    public final Result result;
+    public final List<ErrorRecord> errorRecords;
     static final private List<ErrorRecord> emptyList = List.of();
 
     @JsonCreator
@@ -53,14 +53,4 @@ public class ResponseDTO {
         return new ResponseDTO(Result.InternalServerError, emptyList);
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if(obj instanceof ResponseDTO) {
-            ResponseDTO otherResponse = (ResponseDTO) obj;
-            return this.result.equals(otherResponse.result)
-                    && this.errorRecords.equals(otherResponse.errorRecords);
-        } else {
-            return false;
-        }
-    }
 }

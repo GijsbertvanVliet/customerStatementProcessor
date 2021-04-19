@@ -1,6 +1,8 @@
-package nl.gb.error;
+package nl.gb.errorHandling;
 
-import nl.gb.dto.ResponseDTO;
+import nl.gb.web.dto.ResponseDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -12,17 +14,21 @@ import org.springframework.web.context.request.WebRequest;
 import java.io.IOException;
 
 @ControllerAdvice
-public class ExceptionHanlder {
+public class CustomExceptionHandler {
+
+    private Logger logger = LoggerFactory.getLogger(CustomExceptionHandler.class);
 
     @ExceptionHandler({MethodArgumentNotValidException.class, HttpMessageNotReadableException.class})
     protected ResponseEntity<ResponseDTO> handleMethodArgumentNotValid(Exception ex, WebRequest request) {
+        logger.error("Invalid json", ex);
         ResponseDTO errorResponse = ResponseDTO.createBadRequestResponse();
-        return new ResponseEntity<ResponseDTO>(errorResponse, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.badRequest().body(errorResponse);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ResponseDTO> couldNotParseJson(Exception ex, WebRequest request) throws IOException {
+    public ResponseEntity<ResponseDTO> catchAll(Exception ex, WebRequest request) throws IOException {
+        logger.error("Unknown error", ex);
         ResponseDTO internalServerErrorResponse = ResponseDTO.createInternalServerErrorResponse();
-        return new ResponseEntity<ResponseDTO>(internalServerErrorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(internalServerErrorResponse);
     }
 }

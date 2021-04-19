@@ -1,8 +1,8 @@
 package nl.gb.service;
 
-import nl.gb.dto.RequestDTO;
-import nl.gb.dto.ResponseDTO;
+import nl.gb.service.data.CustomerStatementRecord;
+import nl.gb.service.data.HandleTransactionResponse;
 
 public interface CustomerStatementService {
-    public abstract ResponseDTO handleRequest(RequestDTO request);
+    HandleTransactionResponse handleRequest(CustomerStatementRecord request);
 }

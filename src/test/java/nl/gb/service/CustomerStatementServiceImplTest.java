@@ -1,21 +1,23 @@
 package nl.gb.service;
 
-import nl.gb.dto.RequestDTO;
-import nl.gb.dto.ResponseDTO;
-import nl.gb.error.ErrorRecord;
-import nl.gb.error.Result;
 import nl.gb.repository.Reference;
 import nl.gb.repository.ReferenceRepository;
+import nl.gb.service.data.CustomerStatementRecord;
+import nl.gb.service.data.HandleTransactionErrorRecord;
+import nl.gb.service.data.HandleTransactionResponse;
+import nl.gb.service.data.HandleTransactionResult;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CustomerStatementServiceImplTest {
@@ -28,37 +30,35 @@ public class CustomerStatementServiceImplTest {
 
     @Test
     public void successfulTestCase() {
-        RequestDTO request = new RequestDTO(1L,
+        CustomerStatementRecord request = new CustomerStatementRecord(1L,
                 "NL06INBG12",
-                100L,
-                -10L,
+                new BigDecimal(100),
+                new BigDecimal(-10),
                 "some description",
-                90L);
+                new BigDecimal(90));
 
-        when(referenceRepository.findById("1")).thenReturn(Optional.empty());
+        when(referenceRepository.findById(1L)).thenReturn(Optional.empty());
 
-        ResponseDTO expectedResponse = new ResponseDTO(Result.Successful, List.of());
-        ResponseDTO actualResponse = testableService.handleRequest(request);
+        HandleTransactionResponse expectedResponse = new HandleTransactionResponse(HandleTransactionResult.Successful, List.of());
+        HandleTransactionResponse actualResponse = testableService.handleRequest(request);
         Assert.assertEquals(expectedResponse, actualResponse);
 
-        Reference refToBeUploaded = new Reference();
-        refToBeUploaded.setTrxReference("1");
-        refToBeUploaded.setAccountNumber("NL06INBG12");
+        Reference refToBeUploaded = new Reference(1L,"NL06INBG12");
         verify(referenceRepository, times(1)).save(refToBeUploaded);
     }
 
     @Test
     public void incorrectEndBalanceTestCase() {
-        RequestDTO request = new RequestDTO(1L,
+        CustomerStatementRecord request = new CustomerStatementRecord(1L,
                 "NL06INBG12",
-                100L,
-                -1L,
+                new BigDecimal(100),
+                new BigDecimal(-1),
                 "some description",
-                80L);
-        when(referenceRepository.findById("1")).thenReturn(Optional.empty());
+                new BigDecimal(80));
+        when(referenceRepository.findById(1L)).thenReturn(Optional.empty());
 
-        ResponseDTO expectedResponse = new ResponseDTO(Result.IncorrectEndBalance, List.of(new ErrorRecord(1L, "NL06INBG12")));
-        ResponseDTO actualResponse = testableService.handleRequest(request);
+        HandleTransactionResponse expectedResponse = new HandleTransactionResponse(HandleTransactionResult.IncorrectEndBalance, List.of(new HandleTransactionErrorRecord(1L, "NL06INBG12")));
+        HandleTransactionResponse actualResponse = testableService.handleRequest(request);
         Assert.assertEquals(expectedResponse, actualResponse);
 
         verify(referenceRepository, never()).save(any(Reference.class));
@@ -66,44 +66,39 @@ public class CustomerStatementServiceImplTest {
 
     @Test
     public void duplicateReferenceTestCase() {
-        RequestDTO request = new RequestDTO(1L,
+        CustomerStatementRecord request = new CustomerStatementRecord(1L,
                 "NL06INBG12",
-                100L,
-                -10L,
+                new BigDecimal(100),
+                new BigDecimal(-10),
                 "some description",
-                90L);
-        Reference duplicateReference = new Reference();
-        duplicateReference.setTrxReference("1");
-        duplicateReference.setAccountNumber("NL07INGB34");
-        when(referenceRepository.findById("1")).thenReturn(Optional.of(duplicateReference));
+                new BigDecimal(90));
+        Reference duplicateReference = new Reference(1L, "NL07INGB34");
+        when(referenceRepository.findById(1L)).thenReturn(Optional.of(duplicateReference));
 
-        ResponseDTO expectedResponse = new ResponseDTO(Result.DuplicateReference, List.of(new ErrorRecord(1L, "NL06INBG12")));
-        ResponseDTO actualResponse = testableService.handleRequest(request);
+        HandleTransactionResponse expectedResponse = new HandleTransactionResponse(HandleTransactionResult.DuplicateReference,
+                List.of(new HandleTransactionErrorRecord(1L, "NL06INBG12")));
+        HandleTransactionResponse actualResponse = testableService.handleRequest(request);
         Assert.assertEquals(expectedResponse, actualResponse);
 
-        Reference refToBeUploaded = new Reference();
-        refToBeUploaded.setTrxReference("1");
-        refToBeUploaded.setAccountNumber("NL06INBG12");
+        Reference refToBeUploaded = new Reference(1L,                "NL06INBG12");
         verify(referenceRepository, times(1)).save(refToBeUploaded);
     }
 
     @Test
     public void duplidateReferenceAndIncorrectEndBalanceTestCase() {
-        RequestDTO request = new RequestDTO(1L,
+        CustomerStatementRecord request = new CustomerStatementRecord(1L,
                 "NL06INBG12",
-                100L,
-                -10L,
+                new BigDecimal(100),
+                new BigDecimal(-10),
                 "some description",
-                80L);
-        Reference duplicateReference = new Reference();
-        duplicateReference.setTrxReference("1");
-        duplicateReference.setAccountNumber("NL07INGB34");
-        when(referenceRepository.findById("1")).thenReturn(Optional.of(duplicateReference));
+                new BigDecimal(80));
+        Reference duplicateReference = new Reference(1L,                "NL07INGB34");
+        when(referenceRepository.findById(1L)).thenReturn(Optional.of(duplicateReference));
 
-        ResponseDTO expectedResponse = new ResponseDTO(Result.DuplicateReferenceIncorrectEndBalance, List.of(
-                new ErrorRecord(1L, "NL07INGB34"),
-                new ErrorRecord(1L, "NL06INBG12")));
-        ResponseDTO actualResponse = testableService.handleRequest(request);
+        HandleTransactionResponse expectedResponse = new HandleTransactionResponse(HandleTransactionResult.DuplicateReferenceIncorrectEndBalance, List.of(
+                new HandleTransactionErrorRecord(1L, "NL07INGB34"),
+                new HandleTransactionErrorRecord(1L, "NL06INBG12")));
+        HandleTransactionResponse actualResponse = testableService.handleRequest(request);
         Assert.assertEquals(expectedResponse, actualResponse);
 
         verify(referenceRepository, never()).save(any(Reference.class));

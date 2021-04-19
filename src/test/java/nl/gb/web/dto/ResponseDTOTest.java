@@ -1,25 +1,21 @@
-package nl.gb.dto;
+package nl.gb.web.dto;
 
-import nl.gb.error.ErrorRecord;
-import nl.gb.error.Result;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.List;
-
 @RunWith(MockitoJUnitRunner.class)
-public class ResponseDTOTEST {
+public class ResponseDTOTest {
     @Test
-    public void createSuccessfulResponse() {
+    public void testCSuccessfulResponse() {
         ResponseDTO successResponse = ResponseDTO.createSuccessfulResponse();
         Assert.assertEquals(successResponse.result, Result.Successful);
         Assert.assertTrue(successResponse.errorRecords.isEmpty());
     }
 
     @Test
-    public void createDuplicateReferenceResponse() {
+    public void testCDuplicateReferenceResponse() {
         Long transactionReference = 1L;
         String accountNumber = "NL06INGB12";
         ResponseDTO duplicateReferenceResponse = ResponseDTO.createDuplicateReferenceResponse(transactionReference, accountNumber);
@@ -30,7 +26,7 @@ public class ResponseDTOTEST {
     }
 
     @Test
-    public void createIncorrectEndBalanceResponse() {
+    public void testCIncorrectEndBalanceResponse() {
         Long transactionReference = 1L;
         String accountNumber = "NL06INGB12";
         ResponseDTO duplicateReferenceResponse = ResponseDTO.createIncorrectEndBalanceResponse(transactionReference, accountNumber);
@@ -41,7 +37,7 @@ public class ResponseDTOTEST {
     }
 
     @Test
-    public void createDuplicateReferenceAndIncorrectEndBalanceResponse() {
+    public void testCDuplicateReferenceAndIncorrectEndBalanceResponse() {
         Long transactionReference = 1L;
         String accountNumber = "NL06INGB12";
         String duplicateAccountNumber = "NL08INGB34";
@@ -58,36 +54,16 @@ public class ResponseDTOTEST {
     }
 
     @Test
-    public void createBadRequestResponse() {
+    public void testCBadRequestResponse() {
         ResponseDTO badRequestResponse = ResponseDTO.createBadRequestResponse();
         Assert.assertEquals(badRequestResponse.result, Result.BadRequest);
         Assert.assertTrue(badRequestResponse.errorRecords.isEmpty());
     }
 
     @Test
-    public void createInternalServerErrorResponse() {
+    public void testCInternalServerErrorResponse() {
         ResponseDTO badRequestResponse = ResponseDTO.createInternalServerErrorResponse();
         Assert.assertEquals(badRequestResponse.result, Result.InternalServerError);
         Assert.assertTrue(badRequestResponse.errorRecords.isEmpty());
-    }
-
-    @Test
-    public void notEqualsOtherClass() {
-        ResponseDTO response = ResponseDTO.createSuccessfulResponse();
-        Assert.assertNotEquals("something else", response);
-    }
-
-    @Test
-    public void notEqualsSameCLassOtherArguments() {
-        ResponseDTO response = ResponseDTO.createDuplicateReferenceResponse(1L, "NL06INGB12");
-        ResponseDTO otherResponse = new ResponseDTO(Result.DuplicateReference, List.of(new ErrorRecord(1L, "otherAccountNumber")));
-        Assert.assertNotEquals(otherResponse, response);
-    }
-
-    @Test
-    public void equalsSameClass() {
-        ResponseDTO response = ResponseDTO.createDuplicateReferenceAndIncorrectEndBalanceResponse(1L, "NL06INGB12", "NL07INGB34");
-        ResponseDTO otherResponse = ResponseDTO.createDuplicateReferenceAndIncorrectEndBalanceResponse(1L, "NL06INGB12", "NL07INGB34");
-        Assert.assertEquals(otherResponse, response);
     }
 }

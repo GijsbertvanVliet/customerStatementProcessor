@@ -1,10 +1,12 @@
-package nl.gb.error;
+package nl.gb.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @Getter
+@EqualsAndHashCode
 public class ErrorRecord {
     public final Long reference;
     public final String accountNumber;
@@ -14,16 +16,5 @@ public class ErrorRecord {
                        final @JsonProperty("accountNumber") String accountNumber) {
         this.reference = reference;
         this.accountNumber = accountNumber;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if(obj instanceof ErrorRecord) {
-            ErrorRecord otherRecord = (ErrorRecord) obj;
-            return this.reference.equals(otherRecord.reference)
-                    && this.accountNumber.equals(otherRecord.accountNumber);
-        } else {
-            return false;
-        }
     }
 }

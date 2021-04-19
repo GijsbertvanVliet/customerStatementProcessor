@@ -1,34 +1,25 @@
 package nl.gb.repository;
 
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Table;
 
 @Entity
-@Table
 @Getter
-@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode
 public class Reference {
 
     @Id
     @Column
-    private String trxReference;
+    private Long trxReference;
 
     @Column
     private String accountNumber;
-
-    @Override
-    public boolean equals(Object obj) {
-        if(obj instanceof Reference) {
-            Reference otherReference = (Reference) obj;
-            return otherReference.trxReference.equals(this.trxReference)
-                    && otherReference.accountNumber.equals(this.accountNumber);
-        } else {
-            return false;
-        }
-    }
 }
