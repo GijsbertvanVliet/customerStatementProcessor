@@ -4,11 +4,16 @@ import nl.gb.service.data.CustomerStatementRecord;
 import nl.gb.service.data.HandleTransactionErrorRecord;
 import nl.gb.service.data.HandleTransactionResponse;
 import nl.gb.service.data.HandleTransactionResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.stream.Collectors;
 
 public class DataClassConverter {
+    private static Logger logger = LoggerFactory.getLogger(DataClassConverter.class);
+
     public static ResponseDTO handleTransactionResponseToDataTransferobject(HandleTransactionResponse response) {
+        logger.debug("Converting business response to data transfer object.");
         return new ResponseDTO(resultToDataTransferObject(response.result),
                 response.errorRecords.stream().map(DataClassConverter::errorRecordToDataTransferObject).collect(Collectors.toList()));
     }
@@ -43,6 +48,7 @@ public class DataClassConverter {
     }
 
     public static CustomerStatementRecord requestToCustomerStatementRecord(RequestDTO request) {
+        logger.debug("Converting request data transfer object to business request.");
         return new CustomerStatementRecord(request.getTransactionReference(),
                 request.getAccountNumber(),
                 request.getStartBalance(),

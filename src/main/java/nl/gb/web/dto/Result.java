@@ -1,7 +1,9 @@
 package nl.gb.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.ToString;
 
+@ToString
 public enum Result {
     Successful("SUCCESSFUL"),
     DuplicateReference("DUPLICATE_REFERENCE"),
